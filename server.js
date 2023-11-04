@@ -1,25 +1,29 @@
 const server = require('http').createServer();
 const io = require("socket.io")(server, {
   cors: {
-    origin: "http://127.0.0.1:5500", // Замените на URL вашей веб-страницы
-    methods: ["GET", "POST"] // Методы, которые разрешены
+    origin: "http://127.0.0.1:5500", 
+    methods: ["GET", "POST"]
   }
 });
 
 const PORT = 5000;
 
-let playersReadyCount = 0
 
 server.listen(PORT, () => console.log(`Running on port ${PORT}...`));
+
+let readyPlayerCount  = 0
 
 io.on("connection", (socket) => {
   console.log("a user connected", socket.id);
   
   socket.on("ready", () => {
     console.log("Player ready", socket.id)
-    playersReadyCount++
+
+    readyPlayerCount++
+
+    if(readyPlayerCount  === 2) {
+      console.log("Game started")
+      io.emit("startGame", socket.id)
+    } 
   })
-  if(playersReadyCount === 2) {
-    io.emit("startGame", socket.id)
-  } 
 });
